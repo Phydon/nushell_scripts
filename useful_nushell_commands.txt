@@ -1,0 +1,35 @@
+# REMOVE ALL FILES THAT END WITH ".UN~" -> IN ALL DIRECTORIES RECURSIVELY
+glob **/*.un~ | parse "{name}" | par-each {|it| rm --trash --verbose $it.name}
+
+# REMOVE ALL FILES THAT START WITH "MY" (CASE SENSITIVE, -> INSENSITIVE WITHOUT "[]") -> IN ALL DIRECTORIES RECURSIVELY
+glob **/[M]y* | parse "{name}" | par-each {|it| rm --trash --verbose $it.name}
+
+# FIND ALL .TOML FILES IN C:/
+ls C:/**/* |  where type == file | find .toml
+
+# SEARCH RECURSIVELY FOR FILES THAT CONTAIN THE WORD "MANIFEST"
+glob "**/*manifest*"
+
+# SEARCH RECURSIVELY FOR FILES THAT START WITH EITHER "MY" (CASE SENSITIVE) OR WITH AN "X"
+glob **/{[M]y,x}*
+
+# DISPLAY THE WHOLE YEAR 2022
+cal --week-start monday --month-names --year --full-year 2022
+
+# SHOW MONTH JULY AND AUGUST OF THE YEAR 2022
+cal --week-start monday --month-names --year --full-year 2022 | find july august
+
+# WATCH AND LOG ALL CHANGES MADE IN ANY FILE IN ~/MAIN TO CHANGES_IN_MAIN.LOG
+watch ~/main  { |op, path| $"($op) - ($path)(char nl)" | save --append changes_in_main.log }
+
+# ENTER NEW LINE AND RUN "CARGO CHECK" WHENEVER A RUST FILE CHANGES
+watch . --glob=**/*.rs { (echo "(char nl)" | cargo check) }
+
+# RUN "CARGO TEST" WHENEVER A RUST FILE CHANGES
+watch . --glob=**/*.rs { echo "(char nl)" |  cargo test -- --show-output }
+
+# GET ALL ACTIVE NUSHELL ALIASES
+open $nu.config-path | lines | find alias | find -v "#" | split column "=" | select column1 column2 | rename Alias Command | update Alias {|f| $f.Alias | split row " " | last} | sort-by Alias
+
+# REMOVE DUPLICATES FROM NUSHELLS HISTORY.TXT
+open $nu.history-path | lines | into df | drop-duplicates | into nu | get "0" | save $nu.history-path
