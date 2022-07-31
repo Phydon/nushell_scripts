@@ -47,50 +47,69 @@ export def "history remove_duplicates" [] {
 
 # Get input by words as a table
 # Returns the words stored in a table seperated into rows by default
-export def words [
+def get-words [
 	--list (-l)		# Return a list of words seperated into rows
 	--column (-c)	# Return the words stored in a table seperated into columns
 ] {
-	let input = ($in | str trim)
-
-	if ($input | empty?) {
+	if ($in | empty?) {
 		# Do nothing
 	} else if $column {
-		$input |
-		split column --collapse-empty " "
+		$in |
+		split column --collapse-empty " " | 
+		str trim
 	} else if $list {
-		$input |
-		split row " "
+		$in |
+		split row " " | 
+		str trim
 	} else {
-		$input |
+		$in |
 		split row " " |
-		wrap word
+		str trim | 
+		parse "{word}"
 	}
 }
 
-# Get words from each line as a table
-export def "words by-line" [
+# Get input by words
+# Returns the words stored in a table seperated into rows by default
+# Only works with raw input 
+export def words [
 	--list (-l)		# Return a list of words from each line seperated into rows
 	--column (-c)	# Return the words from each line stored in a table seperated into columns
 ] {
-	let input = ($in | str trim)
+	let input = $in
+	# sum up if input is not raw input
+	# panics if input is list of strings
+	let line_size = ($input | size | get lines | math sum) 
 
 	if ($input | empty?) {
 		# Do nothing
-	} else if $column {
-		$input |
-		lines | 
-		each {|it| $it | words --column} | 
-		flatten
-	} else if $list {
-		$input |
-		lines | 
-		each {|it| $it | words --list} | 
-		flatten
+	} else if ($line_size <= 1) {
+		if $column {
+			$input | 
+			get-words --column
+		} else if $list {
+			$input | 
+			get-words --list
+		} else {
+			$input | 
+			get-words
+		}
 	} else {
-		$input |
-		lines | 
-		each {|it| $it | words} | 
-		flatten
+		if $column {
+			$input |
+			lines | 
+			each {|it| $it | get-words --column} | 
+			flatten
+		} else if $list {
+			$input |
+			lines | 
+			each {|it| $it | get-words --list} | 
+			flatten
+		} else {
+			$input |
+			lines | 
+			each {|it| $it | get-words} | 
+			flatten
+		}
 	}
 }
