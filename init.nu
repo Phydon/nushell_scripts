@@ -57,7 +57,7 @@ export def words [
 		# Do nothing
 	} else if $column {
 		$input |
-		split column -c " "
+		split column --collapse-empty " "
 	} else if $list {
 		$input |
 		split row " "
@@ -65,5 +65,32 @@ export def words [
 		$input |
 		split row " " |
 		wrap word
+	}
+}
+
+# Get words from each line as a table
+export def "words by-line" [
+	--list (-l)		# Return a list of words from each line seperated into rows
+	--column (-c)	# Return the words from each line stored in a table seperated into columns
+] {
+	let input = ($in | str trim)
+
+	if ($input | empty?) {
+		# Do nothing
+	} else if $column {
+		$input |
+		lines | 
+		each {|it| $it | words --column} | 
+		flatten
+	} else if $list {
+		$input |
+		lines | 
+		each {|it| $it | words --list} | 
+		flatten
+	} else {
+		$input |
+		lines | 
+		each {|it| $it | words} | 
+		flatten
 	}
 }
