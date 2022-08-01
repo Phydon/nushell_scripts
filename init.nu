@@ -97,17 +97,17 @@ export def words [
 	} else {
 		if $column {
 			$input |
-			lines | 
+			lines --skip-empty | 
 			each {|it| $it | get-words --column} | 
 			flatten
 		} else if $list {
 			$input |
-			lines | 
+			lines --skip-empty | 
 			each {|it| $it | get-words --list} | 
 			flatten
 		} else {
 			$input |
-			lines | 
+			lines --skip-empty | 
 			each {|it| $it | get-words} | 
 			flatten
 		}
