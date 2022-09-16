@@ -27,15 +27,12 @@ export def "get aliases" [] {
 # Creates a backup of your nushell command history
 export def "history backup" [] {
 	mkdir ~/backup
-
 	open $nu.history-path | 
 	save ~/backup/history.txt
 }
-
 # Creates a backup of your nushell command history and removes all duplicates in the $nu.history-path
 export def "history remove_duplicates" [] {
 	history backup
-
 	open $nu.history-path | 
 	lines | 
 	into df | 
@@ -44,7 +41,6 @@ export def "history remove_duplicates" [] {
 	get "0" | 
 	save $nu.history-path
 }
-
 # Get input by words as a table
 # Returns the words stored in a table seperated into rows by default
 def get-words [
@@ -68,7 +64,6 @@ def get-words [
 		parse "{word}"
 	}
 }
-
 # Get input by words
 # Returns the words stored in a table seperated into rows by default
 # Only works with raw input 
@@ -80,7 +75,6 @@ export def words [
 	# sum up if input is not raw input
 	# panics if input is list of strings
 	let line_size = ($input | size | get lines | math sum) 
-
 	if ($input | empty?) {
 		# Do nothing
 	} else if ($line_size <= 1) {
@@ -113,3 +107,49 @@ export def words [
 		}
 	}
 }
+
+# combine git add .; git commit -m "message"; git push
+export def "git all" [
+	commit_txt: string	# your commit message
+] {
+	git add . |
+	sleep 300ms |
+	git commit -m $commit_txt |
+	sleep 300ms |
+	git push origin master
+}
+
+# run 'cargo check' or 'cargo test' on every file change
+export def "watch cargo" [
+	--check (-c)	# run 'cargo check' whenever a rust file changes
+	--test (-t)		# run 'cargo test' whenever a rust file changes
+] {
+	if $check {
+		watch . --glob=**/*.rs {(
+			echo "(char nl)" |
+			cargo check
+		)}
+	} else if $test {
+		watch . --glob=**/*.rs {
+			echo "(char nl)" |
+			cargo test -- --show-output
+		}
+	}
+}
+
+# log all changes in any file in the given path to 'watched_changes.log'
+export def "watch log" [
+	path: string = "~/main"		# path to folder to watch for file changes; default is '~/main'	
+] {
+	watch $path {
+		|op, path| $"($op) - ($path)(char nl)" |
+		save --append watched_changes.log
+	}
+}
+
+# get the current date and time 
+export def now [] {
+	date now |
+	date format "%d-%m-%Y  %H:%M:%S"
+}
+
