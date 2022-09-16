@@ -13,6 +13,12 @@ glob "**/*manifest*"
 # SEARCH RECURSIVELY FOR FILES THAT START WITH EITHER "MY" (CASE SENSITIVE) OR WITH AN "X"
 glob **/{[M]y,x}*
 
+# FIND ALL FILES THAT START WITH A DOT
+ls -a | find --regex ^\.
+
+# FIND ALL FILES THAT END WITH A "wasd"
+ls -a | find --regex wasd$
+
 # DISPLAY THE WHOLE YEAR 2022
 cal --week-start monday --month-names --year --full-year 2022
 
