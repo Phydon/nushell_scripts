@@ -39,3 +39,11 @@ open $nu.config-path | lines | find alias | find -v "#" | split column "=" | sel
 
 # REMOVE DUPLICATES FROM NUSHELLS HISTORY.TXT
 open $nu.history-path | lines | into df | drop-duplicates | into nu | get "0" | save $nu.history-path
+
+# REPLACE ALL "wasd" WITH "qwertz" IN A GIVEN FILE
+# IMPORTANT: CONVERT TO GIVEN FILE FORMAT FIRST BEFORE SAVING TO FILE
+open test.txt | str replace --all "wasd" "qwertz" | to text | save test.txt
+
+# APPEND A NEW LINE TO AN EXISTING FILE
+# IMPORTANT: CONVERT TO GIVEN FILE FORMAT FIRST BEFORE APPENDING TO FILE
+echo "\nA NEW LINE" | to text | save --append test.txt

@@ -1,13 +1,14 @@
-# Gets the name of the running operating system
+# Gets the name of the running operating system.
 export def getos [] {
 	sys | get host.name
 }
 
+# Exiting the shell, the "VIM way".
 export def ":q" [] {
 	exit
 }
 
-# Gets all active aliases
+# Gets all active aliases.
 export def "get aliases" [] {
 	open $nu.config-path | 
 	lines | 
@@ -24,13 +25,14 @@ export def "get aliases" [] {
 	sort-by Alias
 }
 
-# Creates a backup of your nushell command history
+# Creates a backup of your nushell command history.
 export def "history backup" [] {
 	mkdir ~/backup
 	open $nu.history-path | 
 	save ~/backup/history.txt
 }
-# Creates a backup of your nushell command history and removes all duplicates in the $nu.history-path
+
+# Creates a backup of your nushell command history and removes all duplicates in the $nu.history-path.
 export def "history remove_duplicates" [] {
 	history backup
 	open $nu.history-path | 
@@ -41,8 +43,8 @@ export def "history remove_duplicates" [] {
 	get "0" | 
 	save $nu.history-path
 }
-# Get input by words as a table
-# Returns the words stored in a table seperated into rows by default
+# Get input by words as a table.
+# Returns the words stored in a table seperated into rows by default.
 def get-words [
 	--list (-l)		# Return a list of words seperated into rows
 	--column (-c)	# Return the words stored in a table seperated into columns
@@ -64,9 +66,9 @@ def get-words [
 		parse "{word}"
 	}
 }
-# Get input by words
-# Returns the words stored in a table seperated into rows by default
-# Only works with raw input 
+# Get input by words.
+# Returns the words stored in a table seperated into rows by default.
+# Only works with raw input.
 export def words [
 	--list (-l)		# Return a list of words from each line seperated into rows
 	--column (-c)	# Return the words from each line stored in a table seperated into columns
@@ -108,7 +110,7 @@ export def words [
 	}
 }
 
-# combine git add .; git commit -m "message"; git push
+# Combine git add .; git commit -m "message"; git push.
 export def "git all" [
 	commit_txt: string	# your commit message
 ] {
@@ -119,7 +121,7 @@ export def "git all" [
 	git push origin master
 }
 
-# run 'cargo check' or 'cargo test' on every file change
+# Run 'cargo check' or 'cargo test' on every file change.
 export def "watch cargo" [
 	--check (-c)	# run 'cargo check' whenever a rust file changes
 	--test (-t)		# run 'cargo test' whenever a rust file changes
@@ -137,7 +139,7 @@ export def "watch cargo" [
 	}
 }
 
-# log all changes in any file in the given path to 'watched_changes.log'
+# Log all changes in any file in the given path to 'watched_changes.log'.
 export def "watch log" [
 	path: string = "~/main"		# path to folder to watch for file changes; default is '~/main'	
 ] {
@@ -147,9 +149,33 @@ export def "watch log" [
 	}
 }
 
-# get the current date and time 
+# Get the current date and time.
 export def now [] {
 	date now |
 	date format "%d-%m-%Y  %H:%M:%S"
 }
 
+# Create a backup of a given file.
+# If no file is given, a backup of all files in the current folder is created.
+# Hidden files included.
+export def backup [
+	file?: string	# the file to backup
+] {
+	if ($file == null) {
+		echo "::: Create backup folder ..."
+		mkdir -s nubackup
+
+		echo "::: Make backup ..."
+		ls -a |
+		where type == file | 
+		par-each {
+			|it| cp --verbose $it.name nubackup/ |
+		}
+	} else {
+		echo "::: Create backup folder ..."
+		mkdir -s nubackup
+
+		echo "::: Make backup ..."
+		cp --verbose $file nubackup/ 
+	}
+}
